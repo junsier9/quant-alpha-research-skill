@@ -20,7 +20,40 @@ jobs:
         shell: bash
         run: |
           mkdir -p "$HOME/.local/bin"
-          curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/scripts/install.sh | sh -s -- -b "$HOME/.local/bin"
+          python - <<'PY'
+          import io
+          import json
+          import os
+          import stat
+          import tarfile
+          import urllib.request
+
+          api_url = "https://api.github.com/repos/gitleaks/gitleaks/releases/latest"
+          request = urllib.request.Request(
+              api_url,
+              headers={"Accept": "application/vnd.github+json", "User-Agent": "skill-validate"},
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              release = json.load(response)
+
+          asset = next(
+              item for item in release["assets"]
+              if item["name"].endswith("linux_x64.tar.gz")
+          )
+          with urllib.request.urlopen(asset["browser_download_url"], timeout=60) as response:
+              archive = response.read()
+
+          output_dir = os.path.expanduser("~/.local/bin")
+          with tarfile.open(fileobj=io.BytesIO(archive), mode="r:gz") as tar:
+              member = next(item for item in tar.getmembers() if item.name.endswith("gitleaks"))
+              extracted = tar.extractfile(member)
+              if extracted is None:
+                  raise RuntimeError("gitleaks binary not found in release archive")
+              target = os.path.join(output_dir, "gitleaks")
+              with open(target, "wb") as handle:
+                  handle.write(extracted.read())
+              os.chmod(target, os.stat(target).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+          PY
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Validate skill package
