@@ -1,0 +1,111 @@
+[
+  {
+    "case_id": "recorded-new-alpha-stage0",
+    "transcript_provenance": "recorded_run",
+    "recording_method": "fresh_agent_public_release_prompt_no_memory_generic_repo_only",
+    "prompt": "Find a new alpha and validate it against the current canonical parent.",
+    "must_trigger": true,
+    "read_only": false,
+    "checks": {
+      "skill_must_contain": [
+        "blocked",
+        "current repo artifacts",
+        "Stage 0",
+        "falsification status",
+        "promotion status"
+      ],
+      "skill_must_not_contain": [
+        "promotable",
+        "ready to launch"
+      ]
+    },
+    "baseline": {
+      "output": "I can’t honestly claim validation against the current canonical parent from this prompt alone, because I don’t have the parent definition, data, costs, universe, horizon, or backtest artifacts. So the fail-closed answer is: **no validated new alpha can be promoted yet**.\n\nA public-safe candidate worth testing:\n\n**Liquidity absorption alpha**  \nHypothesis: when price moves sharply into temporarily stressed liquidity, but subsequent trading shows absorption rather than follow-through, the next move tends to favor mean reversion or delayed continuation depending on whether liquidity recovers or keeps deteriorating.\n\nValidation plan against the canonical parent:\n\n1. Define the signal using only observable public market features: recent price displacement, local liquidity deterioration, realized trading pressure, and recovery/non-recovery after the stress event.\n2. Add it as a standalone candidate, not blended into the parent.\n3. Compare candidate vs. canonical parent on the same universe, costs, execution assumptions, and train/test split.\n4. Test three versions: standalone, parent plus candidate, and parent with candidate-neutralized exposure.\n5. Reject unless it improves out-of-sample behavior after costs and survives regime splits, turnover stress, parameter perturbation, and placebo timing tests.\n6. If uplift appears only in-sample, only in one regime, or only through higher exposure/turnover, reject it.\n\nMy recommendation: treat this as a **Stage 0 candidate**, not a validated alpha. The next real step is to run the candidate against the canonical parent under the repo’s existing validation contract and report pass/fail without promotion unless the out-of-sample evidence is clean.",
+      "commands_run": [],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    },
+    "skill": {
+      "invoked": true,
+      "output": "**Blocked.**\n\nI can’t honestly find and validate a new alpha from this prompt alone because no current repo artifacts are attached or read. The canonical parent, horizon, data surface, active blockers, and existing validation contract are unknown.\n\nNext executable action: read the current repo roadmap/planning docs, canonical-parent definition, latest candidate reports, data-trust status, and falsification/promotion artifacts. Only then can I return one net-new candidate lane with Stage 0 evidence, falsification status, promotion status, and a pass/fail decision against the current parent.",
+      "commands_run": [],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    }
+  },
+  {
+    "case_id": "recorded-provider-concordance",
+    "transcript_provenance": "recorded_run",
+    "recording_method": "fresh_agent_public_release_prompt_no_memory_generic_repo_only",
+    "prompt": "Provider coverage passed. Can we rerun alpha now?",
+    "must_trigger": true,
+    "read_only": true,
+    "checks": {
+      "skill_must_contain": [
+        "coverage",
+        "concordance",
+        "Stage 0: blocked",
+        "falsification",
+        "promotion: not allowed"
+      ],
+      "skill_must_not_contain": [
+        "coverage proves",
+        "rerun alpha now"
+      ]
+    },
+    "baseline": {
+      "output": "Not yet, not from coverage alone.\n\n“Coverage passed” only proves the provider returned enough data. It does **not** prove the data is correct enough to rerun alpha. Before rerunning, require a separate data-quality gate:\n\n- Timestamp alignment and closed-bar handling pass.\n- Schema and units are stable.\n- No unexpected gaps, duplicates, or out-of-order rows.\n- Values are concordant with a trusted reference or independent check.\n- Symbol/instrument mapping is verified.\n- The backfill window and live/update behavior are consistent.\n- Any known anomalies are resolved or explicitly excluded.\n\nSo the decision rule should be:\n\n**Coverage passed + quality/concordance passed = rerun alpha allowed.**  \n**Coverage passed but quality/concordance not passed = do not rerun yet.**\n\nIf only coverage has passed, I’d keep the alpha rerun blocked and run the provider validation audit first.",
+      "commands_run": [],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    },
+    "skill": {
+      "invoked": true,
+      "output": "**Decision: blocked.**\n\nProvider coverage passing is not enough to rerun alpha. Coverage only says the provider surface is populated; it does not prove the data is trustworthy for research reruns.\n\nI would not allow the alpha rerun until current repo artifacts are read and confirm:\n\n- provider concordance/trust passed\n- freshness and closed-bar handling are valid\n- schema/field semantics match the research loaders\n- missingness, duplicates, and timestamp alignment are clean\n- the rerun boundary is research-only unless promotion gates also pass\n\nCurrent status from the prompt:\n\n- candidate/lane: unknown\n- parent/comparator: unknown\n- horizon: unknown\n- data trust: coverage passed, concordance unproven\n- Stage 0: blocked\n- falsification: not run\n- promotion: not allowed\n- next action: read the current repo artifacts and verify provider concordance before any alpha rerun.",
+      "commands_run": [],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    }
+  },
+  {
+    "case_id": "recorded-chinese-roadmap-stage0",
+    "transcript_provenance": "recorded_run",
+    "recording_method": "fresh_agent_public_release_prompt_no_memory_generic_repo_only",
+    "prompt": "阅读这个量化研究路线图，直接执行下一个 Stage 0，但不要修改源 repo。",
+    "must_trigger": true,
+    "read_only": true,
+    "checks": {
+      "skill_must_contain": [
+        "blocked",
+        "repo artifacts",
+        "fail-closed",
+        "Stage 0",
+        "证伪状态",
+        "promotion 状态"
+      ],
+      "skill_must_not_contain": [
+        "promotable",
+        "manifest updated"
+      ]
+    },
+    "baseline": {
+      "output": "可以，但我现在还缺路线图正文。\n\n请把路线图内容直接贴到聊天里，或上传文件内容；我会按“只读执行”处理：\n\n1. 识别路线图里明确的下一个 `Stage 0`\n2. 提取它的假设、输入数据、验证口径和失败条件\n3. 给出可执行的 Stage 0 运行步骤\n4. 在不修改源 repo 的前提下输出结果判断\n5. 只在聊天里返回结论，除非你明确指定一个外部临时目录保存报告\n\n当前这条消息里没有路线图内容，所以我不能可靠判断“下一个 Stage 0”是什么。",
+      "commands_run": [],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    },
+    "skill": {
+      "invoked": true,
+      "output": "`blocked`。\n\n当前没有附上路线图或任何 repo artifacts，所以我不能直接执行“下一个 Stage 0”。在读取当前路线图、候选报告、比较基准、数据可信状态和已有验证/证伪产物之前，按 fail-closed 规则不能假设下一步是什么，也不能给出 Stage 0 结果。\n\n我没有修改源 repo。需要先只读读取当前 artifacts 后，才能执行并返回：候选 lane、比较对象、数据状态、Stage 0 结果、证伪状态、promotion 状态和下一步动作。",
+      "commands_run": [],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    }
+  }
+]

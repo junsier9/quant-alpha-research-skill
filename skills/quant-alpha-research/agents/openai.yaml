@@ -1,0 +1,10 @@
+metadata:
+  short-description: "Fail-closed crypto quant alpha research workflows"
+
+interface:
+  display_name: "Quant Alpha Research"
+  short_description: "Fail-closed crypto quant alpha research workflows"
+  default_prompt: "Use $quant-alpha-research to turn a quant idea into a falsifiable alpha research slice."
+
+policy:
+  allow_implicit_invocation: true

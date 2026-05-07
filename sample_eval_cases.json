@@ -1,0 +1,166 @@
+[
+  {
+    "case_id": "new-alpha-stage0",
+    "transcript_provenance": "hand_authored",
+    "prompt": "Find a new alpha and validate it against the current canonical parent.",
+    "must_trigger": true,
+    "read_only": false,
+    "checks": {
+      "skill_must_contain": [
+        "canonical parent",
+        "Stage 0",
+        "falsification",
+        "promotion blocked"
+      ],
+      "skill_must_not_contain": [
+        "promotable",
+        "ready to launch"
+      ]
+    },
+    "baseline": {
+      "output": "Test the strongest momentum variant and pick the best Sharpe before deciding whether to continue.",
+      "commands_run": [],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    },
+    "skill": {
+      "invoked": true,
+      "output": "decision: watch. Compare the candidate against the current canonical parent, build one narrow Stage 0 slice, and keep promotion blocked until falsification covers shuffle, delay, holdout, cost, and capacity stress.",
+      "commands_run": [
+        "git status --short",
+        "read latest quant research roadmap"
+      ],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    }
+  },
+  {
+    "case_id": "provider-concordance",
+    "transcript_provenance": "hand_authored",
+    "prompt": "Provider coverage passed. Can we rerun alpha now?",
+    "must_trigger": true,
+    "read_only": true,
+    "checks": {
+      "skill_must_contain": [
+        "coverage",
+        "concordance",
+        "alpha rerun blocked",
+        "fail-closed"
+      ],
+      "skill_must_not_contain": [
+        "coverage proves",
+        "rerun alpha now"
+      ]
+    },
+    "baseline": {
+      "output": "Coverage passed, so the dataset is probably ready for alpha reruns.",
+      "commands_run": [],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    },
+    "skill": {
+      "invoked": true,
+      "output": "decision: alpha rerun blocked. Coverage and concordance are separate gates; until strict closed-bar OHLC concordance passes, the provider decision must stay fail-closed.",
+      "commands_run": [
+        "git status --short",
+        "read provider validation report"
+      ],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    }
+  },
+  {
+    "case_id": "chinese-roadmap-stage0",
+    "transcript_provenance": "hand_authored",
+    "prompt": "阅读这个量化研究路线图，直接执行下一个 Stage 0，但不要修改源 repo。",
+    "must_trigger": true,
+    "read_only": true,
+    "checks": {
+      "skill_must_contain": [
+        "roadmap",
+        "execution contract",
+        "Stage 0",
+        "no source-repo writes"
+      ],
+      "skill_must_not_contain": [
+        "promotable",
+        "manifest updated"
+      ]
+    },
+    "baseline": {
+      "output": "The roadmap says to continue research. I would next optimize the best candidate.",
+      "commands_run": [],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    },
+    "skill": {
+      "invoked": true,
+      "output": "Treat the roadmap as an execution contract: choose the smallest Stage 0 read-only slice, inspect current artifacts, and close with source_repo_write_status: no source-repo writes.",
+      "commands_run": [
+        "git status --short",
+        "git status --short --ignored",
+        "read docs/quant_research roadmap"
+      ],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    }
+  },
+  {
+    "case_id": "generic-csv-chart",
+    "transcript_provenance": "hand_authored",
+    "prompt": "Make a simple chart from this CSV.",
+    "must_trigger": false,
+    "read_only": false,
+    "checks": {
+      "skill_must_contain": [],
+      "skill_must_not_contain": []
+    },
+    "baseline": {
+      "output": "Use the spreadsheet or plotting workflow to render the requested CSV chart.",
+      "commands_run": [],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    },
+    "skill": {
+      "invoked": false,
+      "output": "",
+      "commands_run": [],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    }
+  },
+  {
+    "case_id": "product-stage0",
+    "transcript_provenance": "hand_authored",
+    "prompt": "Design Stage 0 rollout metrics for a SaaS onboarding experiment.",
+    "must_trigger": false,
+    "read_only": false,
+    "checks": {
+      "skill_must_contain": [],
+      "skill_must_not_contain": []
+    },
+    "baseline": {
+      "output": "Use product analytics and onboarding funnel metrics; this is not a crypto quant alpha task.",
+      "commands_run": [],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    },
+    "skill": {
+      "invoked": false,
+      "output": "",
+      "commands_run": [],
+      "files_changed": [],
+      "source_repo_status_before": "",
+      "source_repo_status_after": ""
+    }
+  }
+]

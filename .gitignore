@@ -1,0 +1,20 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+artifacts/
+reports/
+*.log
+*.env
+.env
+secrets/
+local/
+skills/quant-alpha-research/profiles/*.json
+
+# Local IDE/agent state - never push to public repo
+.claude/
+.codex/
+.vscode/
