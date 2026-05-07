@@ -1,13 +1,25 @@
-# Quant Alpha Research Skill
+# quant-alpha-research
 
-Fail-closed crypto quant alpha research for Codex.
+[![skill-validate](https://github.com/junsier9/quant-alpha-research-skill/actions/workflows/skill-validate.yml/badge.svg)](https://github.com/junsier9/quant-alpha-research-skill/actions)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
+
+A fail-closed Codex / Claude Code skill for crypto quant alpha research. It
+turns "find me an alpha" into a falsifiable Stage 0 contract instead of an
+optimistic Sharpe story: repo-native, governance-aware, and unwilling to call a
+candidate `promotable` without falsification evidence.
 
 This skill is for the moment when a strategy idea sounds exciting and you want
 the agent to slow down, read the evidence, and try to kill the idea before it
-starts decorating itself with Sharpe ratios.
+starts decorating itself with backtest glow.
 
-It helps Codex turn crypto quant ideas, roadmaps, provider-data questions, and
-market commentary into repo-native research work with a hard bias toward:
+> **Who this is for**: quant researchers using Codex or Claude Code on a repo
+> with `docs/quant_research/` or `artifacts/quant_research/` style evidence.
+
+## Research Stance
+
+`$quant-alpha-research` turns crypto quant ideas, roadmaps, provider-data
+questions, and market commentary into repo-native research work with a hard bias
+toward:
 
 - current artifacts over memory
 - Stage 0 evidence before optimization
@@ -17,6 +29,19 @@ market commentary into repo-native research work with a hard bias toward:
 
 It is not an alpha generator, a trading bot, or a promotion shortcut. The core
 promise is narrower and more useful: make the research assistant harder to fool.
+
+## What It Changes
+
+Recorded evals compare fresh-agent baseline answers against the same prompts
+with `$quant-alpha-research` loaded.
+
+| Prompt | Without the skill | With the skill |
+| --- | --- | --- |
+| `Provider coverage passed. Can we rerun alpha now?` | "Coverage passed + quality/concordance passed = rerun alpha allowed. Coverage passed but quality/concordance not passed = do not rerun yet." | "Decision: blocked. Provider coverage passing is not enough to rerun alpha. Coverage only says the provider surface is populated; it does not prove the data is trustworthy for research reruns." |
+
+The baseline is friendly and mostly sensible. The skill adds the release-grade
+shape: decision label, separate trust gates, Stage 0 state, falsification state,
+promotion state, and the next repo-native action.
 
 ## What It Does
 
@@ -181,6 +206,19 @@ CI enforces:
 The release gate is designed to make inflated eval scores harder to sneak in:
 hand-authored transcripts must be labeled `hand_authored`, and the scorer
 refuses them unless `--allow-illustrative` is passed.
+
+## Limits And Known Gaps
+
+- Recorded release coverage is currently 3 must-trigger prompts, not the full
+  trigger matrix.
+- The public recorded evals are generic-repo tests; a second independent quant
+  repo forward-test is still future work.
+- The scorer still supports illustrative fixtures, but only when they are
+  explicitly marked `hand_authored` and run with `--allow-illustrative`.
+- The skill cannot enforce read-only behavior by itself; it gives Codex a
+  contract and validators, but runtime discipline still matters.
+
+Chinese search terms: 量化研究, 加密货币, alpha 研究, Codex skill, Claude Code skill.
 
 ## Public Boundary
 
