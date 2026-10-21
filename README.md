@@ -116,10 +116,10 @@ Each location below contains a **whole** `quant-alpha-research` directory:
 | Claude Code | `~/.claude/skills/quant-alpha-research/` | `.claude/skills/quant-alpha-research/` | `/quant-alpha-research` |
 
 On native Windows, `~` means your user home (`$HOME` in PowerShell, normally
-`C:\Users\<user>`). For WSL, run the macOS/Linux commands inside WSL and use
-that Linux user's home, rather than the Windows home. Install into the
-environment where the host actually runs. These local personal directories do
-not install the skill into hosted/cloud sessions.
+the directory given by `$env:USERPROFILE`). For WSL, run the macOS/Linux
+commands inside WSL and use that Linux user's home, rather than the Windows
+home. Install into the environment where the host actually runs. These local
+personal directories do not install the skill into hosted/cloud sessions.
 
 Codex's current documented personal path is `~/.agents/skills/`; the old
 `$CODEX_HOME/skills/` command is not used here. If migrating an existing copy,
@@ -127,7 +127,7 @@ back it up outside all skill discovery directories and remove that old copy
 after verifying the new installation. Prefer one scope per host to avoid
 duplicate names or a personal skill shadowing a project copy.
 
-Official references: [Codex skills](https://developers.openai.com/codex/skills/)
+Official references: [Codex skills](https://learn.chatgpt.com/docs/build-skills)
 and [Claude Code skills](https://code.claude.com/docs/en/skills).
 
 ### macOS / Linux (Bash or Zsh)
@@ -169,7 +169,8 @@ skill_dest="$PWD/.claude/skills/quant-alpha-research"
 
 **3. Copy and verify the complete package.** This also works for updates; an
 existing installation is moved to a unique backup outside discovery paths.
-Keep the printed backup path if you need to restore local edits.
+The source is validated before moving an existing installation. Keep the
+printed backup path if you need to restore local edits.
 
 ```sh
 (
@@ -178,6 +179,8 @@ Keep the printed backup path if you need to restore local edits.
   repo_dir="$HOME/src/quant-alpha-research-skill"
   test -f "$repo_dir/skills/quant-alpha-research/SKILL.md"
   test -f "$repo_dir/LICENSE"
+  python3 "$repo_dir/scripts/quick_validate.py" "$repo_dir/skills/quant-alpha-research"
+  python3 "$repo_dir/skills/quant-alpha-research/scripts/validate_skill_package.py"
   mkdir -p "$(dirname "$skill_dest")"
   if [ -e "$skill_dest" ] || [ -L "$skill_dest" ]; then
     mkdir -p "$HOME/skill-backups"
@@ -243,6 +246,10 @@ installations are backed up outside skill discovery paths before replacement:
     $skillSource = Join-Path $repoDir 'skills/quant-alpha-research'
     if (-not (Test-Path -LiteralPath (Join-Path $skillSource 'SKILL.md') -PathType Leaf)) { throw 'Skill source is missing.' }
     if (-not (Test-Path -LiteralPath (Join-Path $repoDir 'LICENSE') -PathType Leaf)) { throw 'LICENSE is missing.' }
+    python (Join-Path $repoDir 'scripts/quick_validate.py') $skillSource
+    if ($LASTEXITCODE -ne 0) { throw 'Source metadata validation failed.' }
+    python (Join-Path $skillSource 'scripts/validate_skill_package.py')
+    if ($LASTEXITCODE -ne 0) { throw 'Source package validation failed.' }
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $skillDest) | Out-Null
     if (Test-Path -LiteralPath $skillDest) {
         $backupDir = Join-Path $HOME ('skill-backups/' + [guid]::NewGuid().ToString())
@@ -338,45 +345,53 @@ Use $quant-alpha-research to read this roadmap and execute the next Stage 0 slic
 Use $quant-alpha-research to decide whether provider coverage is enough to rerun alpha.
 ```
 
-For a target quant repo, the validator can run a read-only evidence probe:
+For a target quant repo, the validator can run a read-only evidence probe.
+Run the following repo-level commands from the separate source checkout
+(`~/src/quant-alpha-research-skill`), with your actual quant repo path in place
+of `<path-to-quant-repo>`:
 
 ```powershell
-python .\skills\quant-alpha-research\scripts\validate_skill_package.py --evidence-root <path-to-quant-repo>
+python ./skills/quant-alpha-research/scripts/validate_skill_package.py --evidence-root "<path-to-quant-repo>"
 ```
 
 ```sh
-python ./skills/quant-alpha-research/scripts/validate_skill_package.py --evidence-root <path-to-quant-repo>
+python3 ./skills/quant-alpha-research/scripts/validate_skill_package.py --evidence-root "<path-to-quant-repo>"
 ```
 
 Project-specific required documents should live in local profile JSON outside
 the public repo, or in an ignored profile directory:
 
 ```powershell
-python .\skills\quant-alpha-research\scripts\validate_skill_package.py --evidence-root <path-to-quant-repo> --profile-dir <path-to-local-profiles> --evidence-profile <profile-name>
+python ./skills/quant-alpha-research/scripts/validate_skill_package.py --evidence-root "<path-to-quant-repo>" --profile-dir "<path-to-local-profiles>" --evidence-profile "<profile-name>"
 ```
 
 ```sh
-python ./skills/quant-alpha-research/scripts/validate_skill_package.py --evidence-root <path-to-quant-repo> --profile-dir <path-to-local-profiles> --evidence-profile <profile-name>
+python3 ./skills/quant-alpha-research/scripts/validate_skill_package.py --evidence-root "<path-to-quant-repo>" --profile-dir "<path-to-local-profiles>" --evidence-profile "<profile-name>"
 ```
 
 ## Validate
 
+Run these repo-level checks from the separate source checkout
+(`~/src/quant-alpha-research-skill`). The recorded and sample eval files live
+there; they are not dependencies of the installed skill. The installation
+steps above validate the installed copy separately.
+
 Windows:
 
 ```powershell
-python .\scripts\quick_validate.py .\skills\quant-alpha-research
-python .\skills\quant-alpha-research\scripts\validate_skill_package.py
-python .\skills\quant-alpha-research\scripts\score_eval_cases.py .\recorded_eval_cases.json
-python .\skills\quant-alpha-research\scripts\score_eval_cases.py .\sample_eval_cases.json --allow-illustrative
+python ./scripts/quick_validate.py ./skills/quant-alpha-research
+python ./skills/quant-alpha-research/scripts/validate_skill_package.py
+python ./skills/quant-alpha-research/scripts/score_eval_cases.py ./recorded_eval_cases.json
+python ./skills/quant-alpha-research/scripts/score_eval_cases.py ./sample_eval_cases.json --allow-illustrative
 ```
 
 Unix:
 
 ```sh
-python ./scripts/quick_validate.py ./skills/quant-alpha-research
-python ./skills/quant-alpha-research/scripts/validate_skill_package.py
-python ./skills/quant-alpha-research/scripts/score_eval_cases.py ./recorded_eval_cases.json
-python ./skills/quant-alpha-research/scripts/score_eval_cases.py ./sample_eval_cases.json --allow-illustrative
+python3 ./scripts/quick_validate.py ./skills/quant-alpha-research
+python3 ./skills/quant-alpha-research/scripts/validate_skill_package.py
+python3 ./skills/quant-alpha-research/scripts/score_eval_cases.py ./recorded_eval_cases.json
+python3 ./skills/quant-alpha-research/scripts/score_eval_cases.py ./sample_eval_cases.json --allow-illustrative
 ```
 
 `recorded_eval_cases.json` is the release gate and must pass without
@@ -386,21 +401,21 @@ intentionally requires `--allow-illustrative`.
 To scan the full package repo rather than only the installed skill directory:
 
 ```powershell
-python .\skills\quant-alpha-research\scripts\validate_skill_package.py --repo-root .
+python ./skills/quant-alpha-research/scripts/validate_skill_package.py --repo-root .
 ```
 
 ```sh
-python ./skills/quant-alpha-research/scripts/validate_skill_package.py --repo-root .
+python3 ./skills/quant-alpha-research/scripts/validate_skill_package.py --repo-root .
 ```
 
 For release-grade secret scanning, install `gitleaks` and run:
 
 ```powershell
-python .\skills\quant-alpha-research\scripts\validate_skill_package.py --require-external-secret-scan
+python ./skills/quant-alpha-research/scripts/validate_skill_package.py --require-external-secret-scan
 ```
 
 ```sh
-python ./skills/quant-alpha-research/scripts/validate_skill_package.py --require-external-secret-scan
+python3 ./skills/quant-alpha-research/scripts/validate_skill_package.py --require-external-secret-scan
 ```
 
 ## Release Bar
