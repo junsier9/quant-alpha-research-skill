@@ -58,6 +58,7 @@ jobs:
 
       - name: Validate skill package
         run: |
+          python -m unittest discover -s tests -v
           python scripts/quick_validate.py skills/quant-alpha-research
           python -m py_compile skills/quant-alpha-research/scripts/validate_skill_package.py skills/quant-alpha-research/scripts/score_eval_cases.py
           python skills/quant-alpha-research/scripts/validate_skill_package.py --require-external-secret-scan

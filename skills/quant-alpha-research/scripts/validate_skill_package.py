@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import ast
 import hashlib
 import json
 import math
@@ -42,7 +41,9 @@ SECRET_PATTERNS = {
     "openai_api_key": re.compile(r"\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}\b"),
     "github_token": re.compile(r"\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{20,}\b|\bgithub_pat_[A-Za-z0-9_]{40,}\b"),
     "aws_access_key": re.compile(r"\b(?:AKIA|ASIA)[A-Z0-9]{16}\b"),
-    "private_key_block": re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
+    # Parse PEM labels separately so certificates are not treated as private keys.
+    # Digits and hyphens also cover algorithm-specific labels.
+    "private_key_block": re.compile(r"-----BEGIN (?P<pem_label>[A-Z0-9 -]+?)-----"),
     "secret_assignment": re.compile(
         r"(?im)^\s*(?:export\s+)?[A-Z0-9_]*(?:API[_-]?KEY|TOKEN|SECRET|PASSWORD|PRIVATE[_-]?KEY|ACCESS[_-]?KEY)[A-Z0-9_]*\s*[:=]\s*['\"]?[^'\"\s#]{12,}"
     ),
@@ -95,9 +96,9 @@ def load_evidence_profiles(profile_dir: Path | None = None) -> dict[str, list[st
 
 
 def parse_skill_description(skill_md_text: str) -> str:
-    # Project convention: a single-line YAML description, preferably double-quoted.
-    # This supports raw UTF-8 and YAML-style \uXXXX escapes. Block scalars are not
-    # supported; switch to a YAML parser if the frontmatter grows beyond this shape.
+    # Single-line YAML subset: JSON-compatible double-quoted strings, YAML
+    # single-quoted strings (doubled apostrophes), or plain text. Reject malformed
+    # quoting and unsupported block scalars instead of silently repairing input.
     lines = skill_md_text.splitlines()
     if not lines or lines[0].strip() != "---":
         return ""
@@ -112,12 +113,18 @@ def parse_skill_description(skill_md_text: str) -> str:
         raw = line.split(":", 1)[1].strip()
         if not raw:
             return ""
-        if raw[0] in {"'", '"'} and raw[-1:] == raw[0]:
+        if raw.startswith('"'):
             try:
-                parsed = ast.literal_eval(raw)
-            except (SyntaxError, ValueError):
-                return raw.strip("'\"")
-            return parsed if isinstance(parsed, str) else str(parsed)
+                parsed = json.loads(raw)
+            except (json.JSONDecodeError, ValueError):
+                return ""
+            return parsed if isinstance(parsed, str) else ""
+        if raw.startswith("'"):
+            if not re.fullmatch(r"'(?:[^']|'')*'", raw):
+                return ""
+            return raw[1:-1].replace("''", "'")
+        if raw.startswith(("|", ">")):
+            return ""
         return raw
     return ""
 
@@ -248,6 +255,8 @@ def run_external_secret_scan(required: bool, scan_root: Path) -> tuple[list[str]
         check=False,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         timeout=120,
     )
     details["passed"] = result.returncode == 0
@@ -412,6 +421,8 @@ def validate_skill_files(
             failures.append(f"placeholder marker remains in {rel(path, scan_root)}")
         for name, pattern in SECRET_PATTERNS.items():
             for match in pattern.finditer(content):
+                if name == "private_key_block" and not match.group("pem_label").endswith("PRIVATE KEY"):
+                    continue
                 if is_detector_definition(path, content, match.start()):
                     continue
                 if is_allowed_secret_match(path, content, match.start(), name, scan_root, allowed_secret_patterns):
